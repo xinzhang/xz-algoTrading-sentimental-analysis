@@ -1,0 +1,51 @@
+name: Sentiment Scan
+
+on:
+  schedule:
+    - cron: '0 13 * * *'  # daily at 13:00 UTC
+  workflow_dispatch:
+    inputs:
+      keyword:
+        description: "Search keyword (e.g. gold, nasdaq, tesla)"
+        required: false
+        default: "gold"
+
+permissions:
+  contents: write
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run sentiment scan (gold)
+        run: time python main.py
+        env:
+          SENTIMENT_KEYWORD: gold
+
+      - name: Run sentiment scan (tesla)
+        run: time python main.py
+        env:
+          SENTIMENT_KEYWORD: tesla
+
+      - name: Delete reports older than 14 days
+        run: python prune_reports.py --max-age-days 14
+
+      - name: Commit reports
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add reports/
+          git diff --staged --quiet || git commit -m "Update sentiment reports ($(date -u +%Y-%m-%d))"
+          git push
