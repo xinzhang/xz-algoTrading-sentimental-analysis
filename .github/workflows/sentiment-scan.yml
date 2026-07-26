@@ -30,14 +30,22 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Run sentiment scan (gold)
+        if: github.event_name == 'schedule'
         run: time python main.py
         env:
           SENTIMENT_KEYWORD: gold
 
       - name: Run sentiment scan (tesla)
+        if: github.event_name == 'schedule'
         run: time python main.py
         env:
           SENTIMENT_KEYWORD: tesla
+
+      - name: Run sentiment scan (manual keyword)
+        if: github.event_name == 'workflow_dispatch'
+        run: time python main.py
+        env:
+          SENTIMENT_KEYWORD: ${{ github.event.inputs.keyword }}
 
       - name: Delete reports older than 14 days
         run: python prune_reports.py --max-age-days 14
