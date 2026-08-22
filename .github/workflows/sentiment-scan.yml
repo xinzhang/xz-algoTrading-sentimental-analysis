@@ -41,6 +41,12 @@ jobs:
         env:
           SENTIMENT_KEYWORD: tesla
 
+      - name: Run sentiment scan (TLT)
+        if: github.event_name == 'schedule'
+        run: time python main.py
+        env:
+          SENTIMENT_KEYWORD: TLT
+
       - name: Run sentiment scan (manual keyword)
         if: github.event_name == 'workflow_dispatch'
         run: time python main.py
