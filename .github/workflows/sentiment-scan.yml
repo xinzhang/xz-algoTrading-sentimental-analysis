@@ -47,8 +47,8 @@ jobs:
         env:
           SENTIMENT_KEYWORD: ${{ github.event.inputs.keyword }}
 
-      - name: Delete reports older than 14 days
-        run: python prune_reports.py --max-age-days 14
+      - name: Delete reports older than 7 days
+        run: python prune_reports.py --max-age-days 7
 
       - name: Commit reports
         run: |
